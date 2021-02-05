@@ -1,28 +1,75 @@
 <template>
   <div id="app">
-    <div v-for="(poke,index) in pokemons" :key="index">     
-  </div>
-    
+    <div class="column is-half is-offset-one-quarter">
+      <h1>POKEDÉX</h1>
+      <input
+        class="input"
+        type="text"
+        placeholder="Buscar pokemon pelo nome"
+        v-model="busca"
+      />
+      <button
+        id="buscaBtn"
+        class="button is-fullwidth is-success"
+        @click="buscar"
+      >
+        Buscar
+      </button>
+      <div v-for="(poke, index) in filteredPokemons" :key="poke.url">
+        <Pokemon :name="poke.name" :url="poke.url" :num="index + 1" />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
+import Pokemon from "./components/Pokemon";
 
 export default {
-  name: 'App',
-  data(){
+  name: "App",
+  data() {
     return {
-      pokemons: []
-    }
+      pokemons: [],
+      filteredPokemons: [],
+      busca: "",
+    };
   },
-  created: function(){
-  axios.get("https://pokeapi.co/api/v2/pokemon?limit=151&offset=0").then(res => {
-console.log("pegou a lista de pokemons");
-this.pokemons = res.data.results;
-    })
-  }    
-}
+  created: function () {
+    axios
+      .get("https://pokeapi.co/api/v2/pokemon?limit=151&offset=0")
+      .then((res) => {
+        console.log("pegou a lista de pokemons");
+        this.pokemons = res.data.results;
+        this.filteredPokemons = res.data.results;
+      });
+  },
+  components: {
+    Pokemon,
+  },
+  methods: {
+    buscar: function () {
+      this.filteredPokemons = this.pokemons;
+      if (this.busca == "" || this.busca == " ") {
+        this.filteredPokemons = this.pokemons;
+      } else {
+        this.filteredPokemons = this.pokemons.filter(
+          (pokemon) => pokemon.name == this.busca
+        );
+      }
+    },
+    computed: {
+      /*
+    resultadoBusca: function(){
+      if(this.busca == '' || this.busca == ' '){
+        return this.pokemons;
+      }else{
+        return this.pokemons.filter(pokemon => pokemon.name == this.busca);
+      }
+    }*/
+    },
+  },
+};
 </script>
 
 <style>
@@ -33,5 +80,8 @@ this.pokemons = res.data.results;
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+#buscaBtn {
+  margin-top: 2%;
 }
 </style>
